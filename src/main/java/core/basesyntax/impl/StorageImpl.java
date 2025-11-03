@@ -4,19 +4,31 @@ import core.basesyntax.Storage;
 import java.util.Objects;
 
 public class StorageImpl<K, V> implements Storage<K, V> {
-    final int ARRAY_SIZE = 10;
-    private Object[] keys = new Object[ARRAY_SIZE];
-    private Object[] values = new Object[ARRAY_SIZE];
+    private static final int ARRAY_SIZE = 10;
+    private Object[] keys;
+    private Object[] values;
 
-    @Override
-    public void put(K key, V value) {
+    public StorageImpl() {
+        keys = new Object[ARRAY_SIZE];
+        values = new Object[ARRAY_SIZE];
+    }
+
+    private int indexOf(K key) {
         int index = -1;
         for (int i = 0; i < keys.length; i++) {
-            if (Objects.equals(keys[i], key)) {
+            if (keys[i] == key) {
+                index = i;
+                break;
+            } else if (keys[i] != null && keys[i].equals(key)) {
                 index = i;
                 break;
             }
         }
+        return index;
+    }
+    @Override
+    public void put(K key, V value) {
+        int index = indexOf(key);
         if (index == -1) {
             for (int i = 0; i < keys.length; i++) {
                 if (keys[i] == null && values[i] == null) {
@@ -34,13 +46,7 @@ public class StorageImpl<K, V> implements Storage<K, V> {
 
     @Override
     public V get(K key) {
-        int index = -1;
-        for (int i = 0; i < keys.length; i++) {
-            if (Objects.equals(keys[i],key)) {
-                index = i;
-                break;
-            }
-        }
+        int index = indexOf(key);
         if (index == -1) {
             return null;
         }
