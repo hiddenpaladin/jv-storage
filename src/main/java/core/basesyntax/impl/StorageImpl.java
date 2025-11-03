@@ -4,42 +4,30 @@ import core.basesyntax.Storage;
 import java.util.Objects;
 
 public class StorageImpl<K, V> implements Storage<K, V> {
-    private Object[] keys = new Object[10];
-    private Object[] values = new Object[10];
-
-    public Object[] getKeys() {
-        return keys;
-    }
-
-    public void setKeys(Object[] keys) {
-        this.keys = keys;
-    }
-
-    public Object[] getValues() {
-        return values;
-    }
-
-    public void setValues(Object[] values) {
-        this.values = values;
-    }
+    final int ARRAY_SIZE = 10;
+    private Object[] keys = new Object[ARRAY_SIZE];
+    private Object[] values = new Object[ARRAY_SIZE];
 
     @Override
     public void put(K key, V value) {
         int index = -1;
         for (int i = 0; i < keys.length; i++) {
-            if (Objects.equals(keys[i],key)) {
+            if (Objects.equals(keys[i], key)) {
                 index = i;
+                break;
             }
         }
         if (index == -1) {
-            //как то надо найти пустой кусок массива и туда записывать
             for (int i = 0; i < keys.length; i++) {
-                if (keys[i] == null) {
+                if (keys[i] == null && values[i] == null) {
                     keys[i] = key;
                     index = i;
                     break;
                 }
             }
+        }
+        if (index == -1) {
+            throw new RuntimeException("Storage is full");
         }
         values[index] = value;
     }
@@ -50,6 +38,7 @@ public class StorageImpl<K, V> implements Storage<K, V> {
         for (int i = 0; i < keys.length; i++) {
             if (Objects.equals(keys[i],key)) {
                 index = i;
+                break;
             }
         }
         if (index == -1) {
@@ -61,8 +50,8 @@ public class StorageImpl<K, V> implements Storage<K, V> {
     @Override
     public int size() {
         int size = 0;
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] != null) {
+        for (int i = 0; i < ARRAY_SIZE; i++) {
+            if (keys[i] != null || (keys[i] == null && values[i] != null)) {
                 size++;
             }
         }
